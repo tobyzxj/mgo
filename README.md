@@ -5,7 +5,7 @@ Mirror of [labix.org/v2/mgo](http://labix.org/mgo "Official website of mgo")
 
 NOTE
 ----
-You may use `import "github.com/tobyzxj/mgo"` instead of `import "labix.org/v2/mgo"`, or copy `go/src/github.com/tobyzxj/mgo` to `go/src/labix.org/v2/mgo`.
+You may **not** use `import "github.com/tobyzxj/mgo"` instead of `import "labix.org/v2/mgo"`, and must copy `go/src/github.com/tobyzxj/mgo` to `go/src/labix.org/v2/mgo`.
 
 If you want to test this `mgo`, please click [gocheck](http://labix.org/gocheck "labix.org/gocheck") and [here](https://github.com/go-check/check "github.com/go-check/check")
 
@@ -156,10 +156,8 @@ release of Go, which is Go 1 at the moment.</p>
 	
 	import (
 	        "fmt"
-	        //"labix.org/v2/mgo"
-	        //"labix.org/v2/mgo/bson"
-	        "github.com/tobyzxj/mgo"
-	        "github.com/tobyzxj/mgo/bson"
+	        "labix.org/v2/mgo"
+	        "labix.org/v2/mgo/bson"
 	)
 	
 	type Person struct {
