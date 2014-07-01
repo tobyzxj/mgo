@@ -156,8 +156,10 @@ release of Go, which is Go 1 at the moment.</p>
 	
 	import (
 	        "fmt"
-	        "labix.org/v2/mgo"
-	        "labix.org/v2/mgo/bson"
+	        //"labix.org/v2/mgo"
+	        //"labix.org/v2/mgo/bson"
+	        "github.com/tobyzxj/mgo"
+	        "github.com/tobyzxj/mgo/bson"
 	)
 	
 	type Person struct {
@@ -176,14 +178,14 @@ release of Go, which is Go 1 at the moment.</p>
 	        session.SetMode(mgo.Monotonic, true)
 	
 	        c := session.DB("test").C("people")
-	        err = c.Insert(&amp;Person{"Ale", "+55 53 8116 9639"},
-		               &amp;Person{"Cla", "+55 53 8402 8510"})
+	        err = c.Insert(&Person{"Ale", "+55 53 8116 9639"},
+		               &Person{"Cla", "+55 53 8402 8510"})
 	        if err != nil {
 	                panic(err)
 	        }
 	
 	        result := Person{}
-	        err = c.Find(bson.M{"name": "Ale"}).One(&amp;result)
+	        err = c.Find(bson.M{"name": "Ale"}).One(&result)
 	        if err != nil {
 	                panic(err)
 	        }
