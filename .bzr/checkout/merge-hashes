@@ -1,48 +1,60 @@
 BZR merge-modified list format 1
+file_id: bulk.go-20140620195353-fjb7audhz5et3t6a-1
+hash: b3178f98fdd214b3bf48de37b384054d1aeb83c7
+
+file_id: raceon.go-20140701140049-bpm21d8r8gwc2vnb-1
+hash: 10e6ba83493324a02a61fcb6da6b3947b52fd831
+
 file_id: log.go-20101227173740-ixenc23565jpnbxw-6
-hash: 1a49eb9f57790a2d07b10a2f6660077c68d75810
+hash: f68e968307e5cbcdb9d338591632da9ae41d9294
 
 file_id: server.go-20101227173740-ixenc23565jpnbxw-9
-hash: a93269ccc3e83dcfba5788c9bba0772fee17cf66
+hash: 5e52f90b1a14f8cd05a2444c3aa74d9af7007dd1
 
 file_id: gridfs_test.go-20110425041832-qceo4dppvtxoxjvd-2
-hash: fe10bfc43ec52725a0e15395bd5e426cea150ef9
+hash: ee4bac87caca30b24897bab1cd32c5e4aea96b53
+
+file_id: bulk_test.go-20140620195353-fjb7audhz5et3t6a-2
+hash: 7932afea81f4b53cbbc5a66f6f8c904928e36add
 
 file_id: auth.go-20110409165816-3xwqzacppqcn7p5l-1
-hash: 5eeb34426cc2ef769b9ff34f92f3e99b08fa8898
+hash: 5e727fe0bb9df516d5383046510234158b2bf9c3
 
 file_id: dropall.js-20101227173740-ixenc23565jpnbxw-15
-hash: 88cbc098c16f0d942293f38f1bc32dad9e88136d
+hash: 1e026605d2bc5c8d9273e0a267b238984ef7a71e
 
 file_id: gridfs.go-20110425041832-qceo4dppvtxoxjvd-1
-hash: 12533b65ed21f1ecea7afddd63f7fad0e9e81df8
+hash: 97a5904735f84bc72f47fa99c246226bf14a7bd3
 
 file_id: flusher.go-20120822122228-dsg409nqr1o2tlbw-6
-hash: 387aca7d6b4e785ecc22e4bb2c3fb6fd12c36284
+hash: e51c5bf7cdf81064a1816833930155a5555bd518
 
 file_id: auth_test.go-20110512060724-w384lf118aq155cd-1
-hash: 9a380dbf80632f88cb391978f7d68fe102df0902
+hash: b117a87d9ca12de4bfad36b3e835bfd52f348558
 
 file_id: export_test.go-20120404034107-ka0k2lq71xin8bgm-1
-hash: f30c962cc567fbc38737994a702c7952f430d0b6
+hash: 71bcb8367d610b4f3968d77d69495b07336deb2c
+
+file_id: raceoff.go-20140701140049-bpm21d8r8gwc2vnb-2
+hash: 4454150b8fe5894019913d421ce461ea9eb43b85
 
 file_id: session.go-20101227173740-ixenc23565jpnbxw-10
-hash: b9a89a7e60757aa05a700cfafd567810862b2399
+hash: ebac98af98948030a3e88f0df29cb736f07a9658
 
 file_id: cluster.go-20101227173740-ixenc23565jpnbxw-2
-hash: d326ccd17d5dcc5bd771de6af48d98356907b433
+hash: 41e88500091768e1a36a14b0389d035544ade93a
 
 file_id: cluster_test.go-20110512060724-w384lf118aq155cd-2
-hash: 75b307053964f70df7a6a50aea1f003983fffd97
+hash: d06769fa7534d2b8aa59145d4f684f49b3ea82cd
 
 file_id: init.js-20101227173740-ixenc23565jpnbxw-16
-hash: 932a573cf2794ad072df115100f88cc0ca8d87ef
+hash: 98f648fcaec74606e1937cc8c6410f7d8a68e008
 
 file_id: socket.go-20101227173740-ixenc23565jpnbxw-11
-hash: 03e43dbd39defc2a4be540fa22f8653402eb6e42
+hash: 31580eaa07b1d6ff0d089bf5ccaa91d12938a08b
 
 file_id: session_test.go-20110512060724-w384lf118aq155cd-3
-hash: 59dffb6495ad1e0d72472aa1f1b3f65d03e0190b
+hash: 3282b9ccea4f0d6a3fddc1fb177afa09023e5e17
 
 file_id: gobson_test.go-20120121202541-k0gsuf6mago5b16v-5
-hash: 8d78474b58857db45bcb0b8d92e08d7afc22a8b6
+hash: 39a7f5ac1366490bce6bb0de9645bf7073d98908
