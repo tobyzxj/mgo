@@ -2,6 +2,13 @@ bzr log:
 =======
 
 ------------------------------------------------------------
+revno: 287
+committer: Gustavo Niemeyer <gustavo@niemeyer.net>
+branch nick: master
+timestamp: Tue 2014-07-01 11:00:51 -0300
+message:
+  Add missing files defining raceDetector.
+------------------------------------------------------------
 revno: 286
 committer: Gustavo Niemeyer <gustavo@niemeyer.net>
 branch nick: master
