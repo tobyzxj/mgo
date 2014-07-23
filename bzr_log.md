@@ -1,6 +1,8 @@
 bzr log:
 =======
 
+`mgo` push to `https://github.com/go-mgo/mgo` see [detail](https://github.com/go-mgo/mgo)
+
 ------------------------------------------------------------
 revno: 287
 committer: Gustavo Niemeyer <gustavo@niemeyer.net>

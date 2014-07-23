@@ -31,12 +31,13 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"errors"
-	"labix.org/v2/mgo/bson"
-	. "launchpad.net/gocheck"
 	"net/url"
 	"reflect"
 	"testing"
 	"time"
+
+	. "gopkg.in/check.v1"
+	"gopkg.in/mgo.v2/bson"
 )
 
 func TestAll(t *testing.T) {
@@ -1236,6 +1237,11 @@ var twoWayCrossItems = []crossTypeItem{
 
 	// bson.M <=> map[MyString]
 	{bson.M{"a": bson.M{"b": 1, "c": 2}}, map[MyString]interface{}{"a": map[MyString]interface{}{"b": 1, "c": 2}}},
+
+	// json.Number <=> int64, float64
+	{&struct{ N json.Number }{"5"}, map[string]interface{}{"n": int64(5)}},
+	{&struct{ N json.Number }{"5.05"}, map[string]interface{}{"n": 5.05}},
+	{&struct{ N json.Number }{"9223372036854776000"}, map[string]interface{}{"n": float64(1 << 63)}},
 }
 
 // Same thing, but only one way (obj1 => obj2).

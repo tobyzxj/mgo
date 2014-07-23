@@ -31,7 +31,6 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"labix.org/v2/mgo/bson"
 	"math"
 	"net"
 	"net/url"
@@ -41,6 +40,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"gopkg.in/mgo.v2/bson"
 )
 
 type mode int
@@ -69,6 +70,7 @@ type Session struct {
 	sourcedb     string
 	dialCred     *Credential
 	creds        []Credential
+	poolLimit    int
 }
 
 type Database struct {
@@ -184,8 +186,13 @@ const defaultPrefetch = 0.25
 //
 //     gssapiServiceName=<name>
 //
-//           Defines the service name to use when authenticating with the GSSAPI
-//           mechanism. Defaults to "mongodb".
+//        Defines the service name to use when authenticating with the GSSAPI
+//        mechanism. Defaults to "mongodb".
+//
+//     maxPoolSize=<limit>
+//
+//        Defines the per-server socket pool limit. Defaults to 4096.
+//        See Session.SetPoolLimit for details.
 //
 //
 // Relevant documentation:
@@ -216,6 +223,7 @@ func DialWithTimeout(url string, timeout time.Duration) (*Session, error) {
 	mechanism := ""
 	service := ""
 	source := ""
+	poolLimit := 0
 	for k, v := range uinfo.options {
 		switch k {
 		case "authSource":
@@ -224,6 +232,11 @@ func DialWithTimeout(url string, timeout time.Duration) (*Session, error) {
 			mechanism = v
 		case "gssapiServiceName":
 			service = v
+		case "maxPoolSize":
+			poolLimit, err = strconv.Atoi(v)
+			if err != nil {
+				return nil, errors.New("bad value for maxPoolSize: " + v)
+			}
 		case "connect":
 			if v == "direct" {
 				direct = true
@@ -247,6 +260,7 @@ func DialWithTimeout(url string, timeout time.Duration) (*Session, error) {
 		Mechanism: mechanism,
 		Service:   service,
 		Source:    source,
+		PoolLimit: poolLimit,
 	}
 	return DialWithInfo(&info)
 }
@@ -297,6 +311,10 @@ type DialInfo struct {
 	// done on the database defined by the Source field. See Session.Login.
 	Username string
 	Password string
+
+	// PoolLimit defines the per-server socket pool limit. Defaults to 4096.
+	// See Session.SetPoolLimit for details.
+	PoolLimit int
 
 	// DialServer optionally specifies the dial function for establishing
 	// connections with the MongoDB servers.
@@ -360,6 +378,9 @@ func DialWithInfo(info *DialInfo) (*Session, error) {
 			Source:    source,
 		}
 		session.creds = []Credential{*session.dialCred}
+	}
+	if info.PoolLimit > 0 {
+		session.poolLimit = info.PoolLimit
 	}
 	cluster.Release()
 
@@ -430,7 +451,12 @@ func parseURL(s string) (*urlInfo, error) {
 
 func newSession(consistency mode, cluster *mongoCluster, timeout time.Duration) (session *Session) {
 	cluster.Acquire()
-	session = &Session{cluster_: cluster, syncTimeout: timeout, sockTimeout: timeout}
+	session = &Session{
+		cluster_:    cluster,
+		syncTimeout: timeout,
+		sockTimeout: timeout,
+		poolLimit:   4096,
+	}
 	debugf("New session %p on cluster %p", session, cluster)
 	session.SetMode(consistency, true)
 	session.SetSafe(&Safe{})
@@ -753,7 +779,7 @@ func (db *Database) UpsertUser(user *User) error {
 		rundb = db.Session.DB(user.UserSource)
 	}
 	err := rundb.runUserCmd("updateUser", user)
-	if e, ok := err.(*QueryError); ok && e.Code == 11 {
+	if isNotFound(err) {
 		return rundb.runUserCmd("createUser", user)
 	}
 	if !isNoCmd(err) {
@@ -802,11 +828,12 @@ func isNoCmd(err error) bool {
 	return ok && strings.HasPrefix(e.Message, "no such cmd:")
 }
 
-func (db *Database) runUserCmd(cmdName string, user *User) error {
-	//if user.UserSource != "" && (user.UserSource != "$external" || db.Name != "$external") {
-	//	return fmt.Errorf("MongoDB 2.6+ does not support the UserSource setting")
-	//}
+func isNotFound(err error) bool {
+	e, ok := err.(*QueryError)
+	return ok && e.Code == 11
+}
 
+func (db *Database) runUserCmd(cmdName string, user *User) error {
 	cmd := make(bson.D, 0, 16)
 	cmd = append(cmd, bson.DocElem{cmdName, user.Username})
 	if user.Password != "" {
@@ -824,7 +851,11 @@ func (db *Database) runUserCmd(cmdName string, user *User) error {
 	if roles != nil || user.Roles != nil || cmdName == "createUser" {
 		cmd = append(cmd, bson.DocElem{"roles", roles})
 	}
-	return db.Run(cmd, nil)
+	err := db.Run(cmd, nil)
+	if !isNoCmd(err) && user.UserSource != "" && (user.UserSource != "$external" || db.Name != "$external") {
+		return fmt.Errorf("MongoDB 2.6+ does not support the UserSource setting")
+	}
+	return err
 }
 
 // AddUser creates or updates the authentication credentials of user within
@@ -849,7 +880,7 @@ func (db *Database) AddUser(username, password string, readOnly bool) error {
 		}
 	}
 	err := db.runUserCmd("updateUser", user)
-	if e, ok := err.(*QueryError); ok && e.Code == 11 {
+	if isNotFound(err) {
 		return db.runUserCmd("createUser", user)
 	}
 	if !isNoCmd(err) {
@@ -871,6 +902,9 @@ func (db *Database) RemoveUser(user string) error {
 	if isNoCmd(err) {
 		users := db.C("system.users")
 		return users.Remove(bson.M{"user": user})
+	}
+	if isNotFound(err) {
+		return ErrNotFound
 	}
 	return err
 }
@@ -1356,6 +1390,21 @@ func (s *Session) SetCursorTimeout(d time.Duration) {
 	} else {
 		panic("SetCursorTimeout: only 0 (disable timeout) supported for now")
 	}
+	s.m.Unlock()
+}
+
+// SetPoolLimit sets the maximum number of sockets in use in a single server
+// before this session will block waiting for a socket to be available.
+// The default limit is 4096.
+//
+// This limit must be set to cover more than any expected workload of the
+// application. It is a bad practice and an unsupported use case to use the
+// database driver to define the concurrency limit of an application. Prevent
+// such concurrency "at the door" instead, by properly restricting the amount
+// of used resources and number of goroutines before they are created.
+func (s *Session) SetPoolLimit(limit int) {
+	s.m.Lock()
+	s.poolLimit = limit
 	s.m.Unlock()
 }
 
@@ -2278,7 +2327,6 @@ func checkQueryError(fullname string, d []byte) error {
 Error:
 	result := &queryError{}
 	bson.Unmarshal(d, result)
-	logf("queryError: %#v\n", result)
 	if result.LastError != nil {
 		return result.LastError
 	}
@@ -3357,7 +3405,7 @@ func (s *Session) acquireSocket(slaveOk bool) (*mongoSocket, error) {
 	}
 
 	// Still not good.  We need a new socket.
-	sock, err := s.cluster().AcquireSocket(slaveOk && s.slaveOk, s.syncTimeout, s.sockTimeout, s.queryConfig.op.serverTags)
+	sock, err := s.cluster().AcquireSocket(slaveOk && s.slaveOk, s.syncTimeout, s.sockTimeout, s.queryConfig.op.serverTags, s.poolLimit)
 	if err != nil {
 		return nil, err
 	}

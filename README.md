@@ -3,12 +3,16 @@ mgo
 
 Mirror of [labix.org/v2/mgo](http://labix.org/mgo "Official website of mgo")
 
-NOTE
+Note
 ----
-You may **not** use `import "github.com/tobyzxj/mgo"` instead of `import "labix.org/v2/mgo"`, and must copy `go/src/github.com/tobyzxj/mgo` to `go/src/labix.org/v2/mgo`.
+You may **not** use `import "github.com/tobyzxj/mgo"` instead of `import "gopkg.in/mgo.v2"`, and must copy `go/src/github.com/tobyzxj/mgo` to `go/src/gopkg.in/mgo.v2`.
 
 If you want to test this `mgo`, please click [gocheck](http://labix.org/gocheck "labix.org/gocheck") and [here](https://github.com/go-check/check "github.com/go-check/check")
 
+Important update
+----
+After `release r2014.07.21`, `mgo` change `import "labix.org/v2/mgo"` to `import "gopkg.in/mgo.v2"` 
+ 
 <h2>Introduction</h2>
 
 <p><b>mgo</b> (pronounced as <i>mango</i>) is a <a href="http://www.mongodb.org">MongoDB</a>
@@ -144,7 +148,7 @@ such as master failover.</p>
 <p>To install mgo, make sure you have the <a href="http://bazaar-vcs.org">bzr</a> command available and then run:</p>
 
 <code>
-go get labix.org/v2/mgo
+go get gopkg.in/mgo.v2
 </code>
 
 <p><b>Note:</b> mgo is maintained up-to-date with the current stable
@@ -156,8 +160,8 @@ release of Go, which is Go 1 at the moment.</p>
 	
 	import (
 	        "fmt"
-	        "labix.org/v2/mgo"
-	        "labix.org/v2/mgo/bson"
+	        "gopkg.in/mgo.v2"
+	        "gopkg.in/mgo.v2/bson"
 	)
 	
 	type Person struct {

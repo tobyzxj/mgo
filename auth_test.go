@@ -29,11 +29,12 @@ package mgo_test
 import (
 	"flag"
 	"fmt"
-	"labix.org/v2/mgo"
-	. "launchpad.net/gocheck"
 	"net/url"
 	"sync"
 	"time"
+
+	. "gopkg.in/check.v1"
+	"gopkg.in/mgo.v2"
 )
 
 func (s *S) TestAuthLoginDatabase(c *C) {
@@ -406,6 +407,8 @@ func (s *S) TestAuthRemoveUser(c *C) {
 	c.Assert(err, IsNil)
 	err = mydb.RemoveUser("myuser")
 	c.Assert(err, IsNil)
+	err = mydb.RemoveUser("myuser")
+	c.Assert(err, Equals, mgo.ErrNotFound)
 
 	err = mydb.Login("myuser", "mypass")
 	c.Assert(err, ErrorMatches, "auth fail(s|ed)")
@@ -848,9 +851,9 @@ func (s *S) TestAuthPlainCred(c *C) {
 		c.Skip("no -plain")
 	}
 	cred := &mgo.Credential{
-		Username: plainUser,
-		Password: plainPass,
-		Source:   "$external",
+		Username:  plainUser,
+		Password:  plainPass,
+		Source:    "$external",
 		Mechanism: "PLAIN",
 	}
 	c.Logf("Connecting to %s...", *plainFlag)
